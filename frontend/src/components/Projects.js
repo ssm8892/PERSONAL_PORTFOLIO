@@ -1,27 +1,48 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Card, CardContent, Typography, Grid } from "@mui/material";
+import { motion } from "framer-motion";
 
 function Projects() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/projects")
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/projects`)
       .then(response => setProjects(response.data))
       .catch(error => console.error("Error fetching projects:", error));
   }, []);
 
   return (
     <div>
-      <h2>My Projects</h2>
-      <ul>
-        {projects.map(project => (
-          <li key={project._id}>
-            <h3>{project.title}</h3>
-            <p>{project.description}</p>
-            <a href={project.githubLink}>GitHub</a> | <a href={project.demoLink}>Live Demo</a>
-          </li>
+      <Typography variant="h4" gutterBottom>
+        My Projects
+      </Typography>
+      <Grid container spacing={3}>
+        {projects.map((project) => (
+          <Grid item xs={12} sm={6} md={4} key={project._id}>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Card sx={{ borderRadius: "15px", boxShadow: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" component="div">
+                    {project.title}
+                  </Typography>
+                  <Typography color="textSecondary">
+                    {project.description}
+                  </Typography>
+                  <Typography>
+                    <a href={project.githubLink} target="_blank" rel="noopener noreferrer">
+                      GitHub
+                    </a> | 
+                    <a href={project.demoLink} target="_blank" rel="noopener noreferrer">
+                      Live Demo
+                    </a>
+                  </Typography>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Grid>
         ))}
-      </ul>
+      </Grid>
     </div>
   );
 }
