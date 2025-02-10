@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Projects from "./components/Projects";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -14,6 +15,7 @@ function App() {
     <div>
       <h1>Welcome to My Portfolio</h1>
       <p>Backend says: {message}</p>
+      <Projects />
     </div>
   );
 }
