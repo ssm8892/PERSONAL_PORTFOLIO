@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Home stage — always dark: the brain is light drawn on black.
+   ========================================================================== */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  color: #f5f5f7;
+  color-scheme: dark;
+  --dev-label: #64b5ff;
+  --art-label: #ffb36b;
+  --lx: 30vw;
+  --rx: 70vw;
+  --cy: 50vh;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.stage[data-ready] .canvas { opacity: 1; }
+
+/* ---------- Intro ---------- */
+
+.intro {
+  position: absolute;
+  top: max(1.25rem, env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  z-index: 3;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.tagline {
+  margin: 0.15rem 0 0;
+  color: rgba(245, 245, 247, 0.56);
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- The two halves (each link covers half the screen) ---------- */
+
+.sides { position: absolute; inset: 0; z-index: 2; }
+
+.side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.sideLeft { left: 0; }
+.sideRight { right: 0; }
+.side:focus-visible { outline: none; }
+
+/* Labels float over the middle of each hemisphere */
+.label {
+  position: absolute;
+  top: var(--cy);
+  translate: -50% -50%;
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0.62;
+  scale: 0.97;
+  transition: opacity 250ms ease, scale 450ms var(--ease-out);
+}
+.sideLeft .label { left: var(--lx); }
+.sideRight .label { left: calc(var(--rx) - 50vw); }
+
+.float { display: grid; justify-items: center; gap: 0.35rem; will-change: transform; }
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.4vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: #fff;
+  /* Heavy, soft separation: the labels sit over busy linework */
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, 0.9),
+    0 2px 18px rgba(0, 0, 0, 0.9),
+    0 6px 60px rgba(0, 0, 0, 0.85);
+}
+
+.sub {
+  font-size: clamp(0.8125rem, 1.15vw, 1.0625rem);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.95);
+}
+.sideLeft .sub { color: var(--dev-label); }
+.sideRight .sub { color: var(--art-label); }
+
+/* A frosted "Enter" pill appears under the chosen side */
+.enter {
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0;
+  translate: 0 -4px;
+  transition: opacity 200ms ease, translate 300ms var(--ease-out);
+}
+
+.stage[data-active="left"] .sideLeft .label,
+.stage[data-active="right"] .sideRight .label { opacity: 1; scale: 1.03; }
+.stage[data-active="left"] .sideRight .label,
+.stage[data-active="right"] .sideLeft .label { opacity: 0.32; }
+
+.stage[data-active="left"] .sideLeft .enter,
+.stage[data-active="right"] .sideRight .enter { opacity: 1; translate: 0 0; }
+
+.side:focus-visible .title { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 10px; }
+
+/* ---------- Hint ---------- */
+
+.hint {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  z-index: 3;
+  margin: 0;
+  text-align: center;
+  color: rgba(245, 245, 247, 0.45);
+  font-size: 0.8125rem;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+.hintCoarse { display: none; }
+@media (hover: none) { .hintFine { display: none; } .hintCoarse { display: inline; } }
+.stage[data-touched] .hint { opacity: 0; }
+
+/* ---------- Leaving: fly into the chosen hemisphere ---------- */
+
+.stage[data-leaving] .canvas {
+  scale: 1.22;
+  opacity: 0;
+  transition: scale 420ms var(--ease-out), opacity 320ms ease 60ms;
+}
+.stage[data-leaving="left"] .canvas  { transform-origin: var(--lx) var(--cy); }
+.stage[data-leaving="right"] .canvas { transform-origin: var(--rx) var(--cy); }
+.stage[data-leaving] .intro,
+.stage[data-leaving] .hint { opacity: 0; }
+.stage[data-leaving] .label { opacity: 0; scale: 1.12; transition: opacity 220ms ease, scale 320ms var(--ease-out); }
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 640px) {
+  .title { font-size: clamp(1.625rem, 7.4vw, 2.25rem); }
+  .enter { display: none; }
+}
+
+/* ---------- Reduced motion: keep the color story, drop the movement ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .label, .stage[data-active] .label { scale: none; transition: opacity 200ms ease; }
+  .enter { translate: none; }
+  .stage[data-leaving] .canvas, .stage[data-leaving] .label { scale: none; }
+}

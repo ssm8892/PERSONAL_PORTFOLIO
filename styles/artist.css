@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Artist — gallery, lightbox, sketchbook shelf
+   ========================================================================== */
+
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.jump { display: flex; gap: 0.625rem; margin-top: 2rem; }
+
+/* ---------- Gallery (masonry via columns: no JS layout) ---------- */
+
+.masonry { columns: 3 300px; column-gap: 1.25rem; }
+
+.tile {
+  display: block; width: 100%;
+  margin: 0 0 1.75rem; padding: 0;
+  border: 0; background: none; text-align: left;
+  break-inside: avoid;
+  cursor: zoom-in;
+}
+.tile-img {
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  box-shadow: var(--shadow-sm);
+  transition: transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
+}
+.tile img { width: 100%; height: auto; transition: transform 500ms var(--ease-out); }
+.tile-cap { display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem 0.25rem 0; }
+.tile-title { font-weight: 600; letter-spacing: -0.012em; }
+.tile-meta { color: var(--text-3); font-size: 0.875rem; white-space: nowrap; }
+.tile:active .tile-img { transform: scale(0.985); transition-duration: 120ms; }
+
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover .tile-img { box-shadow: var(--shadow-md); }
+  .tile:hover img { transform: scale(1.03); }
+}
+
+/* ---------- Lightbox ---------- */
+
+.lightbox {
+  width: min(100vw - 2rem, 1200px);
+  max-width: none;
+  height: min(100dvh - 2rem, 860px);
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--bg-elev);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-rows: minmax(0, 1fr);
+
+  /* Enter / exit: materialize from slightly smaller, centered (modals aren't trigger-anchored) */
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 260ms var(--ease-out),
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+.lightbox:not([open]) { display: none; }
+.lightbox[open] { opacity: 1; transform: none; }
+@starting-style { .lightbox[open] { opacity: 0; transform: scale(0.96); } }
+
+.lightbox::backdrop {
+  background: var(--scrim);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  opacity: 0;
+  transition: opacity 260ms var(--ease-out), backdrop-filter 260ms var(--ease-out), overlay 260ms allow-discrete, display 260ms allow-discrete;
+}
+.lightbox[open]::backdrop { opacity: 1; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+@starting-style { .lightbox[open]::backdrop { opacity: 0; -webkit-backdrop-filter: blur(0px); backdrop-filter: blur(0px); } }
+
+.lb-media {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 0;
+  height: 100%;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background: var(--bg-sunken);
+  touch-action: pan-y;
+  user-select: none;
+}
+.lb-media img {
+  max-width: 100%; max-height: 100%;
+  width: auto; height: auto;
+  min-width: 0; min-height: 0;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+  transition: opacity 150ms ease;
+  -webkit-user-drag: none;
+}
+.lb-media img.is-swapping { opacity: 0; }
+
+.lb-info {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem;
+  padding: 2rem 1.75rem 1.5rem;
+  overflow-y: auto;
+}
+.lb-info h2 { margin: 0 2.5rem 0 0; font-family: var(--font-display); font-size: 1.625rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.lb-meta { margin: 0.4rem 0 0; color: var(--text-3); font-size: 0.9375rem; }
+.lb-desc { margin: 1.25rem 0 0; color: var(--text-2); line-height: 1.55; white-space: pre-line; }
+
+.lb-controls { display: flex; align-items: center; gap: 0.5rem; }
+.lb-count { margin-right: auto; color: var(--text-3); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+
+
+.lb-close { position: absolute; top: 1rem; right: 1rem; }
+
+@media (max-width: 820px) {
+  .lightbox { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; width: 100vw; height: 100dvh; border-radius: 0; }
+  .lb-info { padding: 1.25rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); max-height: 40dvh; }
+  .lb-close { background: var(--chrome); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+}
+
+/* ---------- Sketchbook shelf ---------- */
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: clamp(1.5rem, 4vw, 2.75rem) clamp(1rem, 3vw, 2rem);
+}
+
+.book { display: block; perspective: 1200px; }
+.book-body { position: relative; aspect-ratio: 3 / 4; }
+
+/* A page peeking out from under the cover */
+.book-page {
+  position: absolute; inset: 2% 3% 2% 0;
+  border-radius: 2px 8px 8px 2px;
+  background: var(--paper) center / 70% no-repeat;
+  box-shadow: inset 6px 0 10px -6px rgba(0, 0, 0, 0.25), var(--shadow-sm);
+}
+
+.book-cover {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 1.25rem 1.1rem 1.1rem 1.5rem;
+  border-radius: 3px 10px 10px 3px;
+  background: var(--cover, #2f4858) center / cover no-repeat;
+  color: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    inset 8px 0 0 -4px rgba(0, 0, 0, 0.22),      /* spine crease */
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),      /* light catching the top edge */
+    var(--shadow-md);
+  transform-origin: left center;
+  transition: transform 450ms var(--ease-out), box-shadow 450ms var(--ease-out);
+}
+.book-cover::before { /* elastic band */
+  content: ""; position: absolute; top: 0; bottom: 0; right: 14%;
+  width: 6px; background: rgba(0, 0, 0, 0.28);
+}
+.book-cover.has-image::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.55));
+}
+.book-cover > * { position: relative; z-index: 1; }
+.book-title { margin: 0; font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; }
+.book-sub { margin: 0.35rem 0 0; font-size: 0.8125rem; opacity: 0.75; }
+.book-foot { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 500; opacity: 0.75; letter-spacing: 0.02em; }
+
+.book-label { display: block; margin-top: 0.9rem; font-weight: 600; letter-spacing: -0.012em; }
+.book-label small { display: block; color: var(--text-3); font-size: 0.8125rem; font-weight: 400; }
+
+.book:active .book-cover { transform: rotateY(-8deg) scale(0.99); transition-duration: 150ms; }
+
+@media (hover: hover) and (pointer: fine) {
+  /* Hint at the gesture: the cover starts to open the way the reader will */
+  .book:hover .book-cover,
+  .book:focus-visible .book-cover {
+    transform: rotateY(-24deg);
+    box-shadow: inset 8px 0 0 -4px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.18), 14px 14px 30px rgba(0, 0, 0, 0.18);
+  }
+}
+.book:focus-visible { outline: none; }
+.book:focus-visible .book-body { outline: 3px solid color-mix(in srgb, var(--art) 60%, transparent); outline-offset: 4px; border-radius: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tile img, .tile-img { transition: none; }
+  .tile:hover img, .tile:active .tile-img { transform: none; }
+  .lightbox, .lightbox[open] { transform: none; }
+  @starting-style { .lightbox[open] { transform: none; } }
+  .book .book-cover, .book:hover .book-cover, .book:active .book-cover { transform: none !important; }
+  .icon-btn:active { transform: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .lightbox::backdrop, .lightbox[open]::backdrop { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

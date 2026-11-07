@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Developer
+   ========================================================================== */
+
+.hero-links { display: flex; flex-wrap: wrap; gap: 0.625rem; margin-top: 2rem; }
+.hero-links:empty { display: none; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 1rem;
+}
+
+.card {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 240px;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-sm);
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  transition: transform 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
+}
+.card.featured { grid-column: span 2; }
+@media (max-width: 720px) { .card.featured { grid-column: auto; } }
+
+/* Filter results fade in (transitions retarget if you click chips quickly) */
+.card.is-entering { animation: card-in 260ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 30ms); }
+@keyframes card-in { from { opacity: 0; transform: translateY(6px); } }
+
+.card-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--text-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.badge {
+  display: inline-flex; align-items: center;
+  height: 24px; padding: 0 0.6rem;
+  border-radius: 999px;
+  background: var(--dev-soft);
+  color: var(--dev);
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em;
+  text-transform: capitalize;
+}
+.badge.paper { background: color-mix(in srgb, #8e44ad 14%, transparent); color: color-mix(in srgb, #8e44ad 80%, var(--text)); }
+.badge.talk, .badge.other { background: var(--line); color: var(--text-2); }
+
+.card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.3125rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.card.featured h3 { font-size: clamp(1.375rem, 2.4vw, 1.75rem); }
+
+/* The title link stretches over the whole card; other links sit above it. */
+.card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.card h3 a:focus-visible { outline: none; }
+.card:has(h3 a:focus-visible) { outline: 3px solid color-mix(in srgb, var(--dev) 60%, transparent); }
+
+.card .meta { margin: 0.4rem 0 0; color: var(--text-2); font-size: 0.875rem; }
+.card .desc { margin: 0.75rem 0 0; color: var(--text-2); font-size: 0.9375rem; line-height: 1.5; text-wrap: pretty; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.tags li {
+  padding: 0.15rem 0.55rem;
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+  margin-top: auto; padding-top: 1.25rem;
+}
+.card-links { position: relative; z-index: 1; display: flex; gap: 0.375rem; flex-wrap: wrap; }
+.card-links a {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  min-height: 32px; padding: 0 0.7rem;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  font-size: 0.8125rem; font-weight: 500;
+  transition: background-color 150ms ease, transform 120ms var(--ease-out);
+}
+.card-links a:active { transform: scale(0.97); }
+.card-links svg { width: 14px; height: 14px; }
+
+.stats { display: flex; gap: 0.75rem; color: var(--text-3); font-size: 0.8125rem; }
+.stats span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.stats svg { width: 13px; height: 13px; }
+.lang-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-3); }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .card-links a:hover { background: var(--line); }
+}
+
+.empty { color: var(--text-3); }
+
+/* ---------- More on GitHub ---------- */
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 0.75rem;
+}
+.repo {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
+  transition: background-color 150ms ease, transform 120ms var(--ease-out);
+}
+.repo:active { transform: scale(0.99); }
+.repo-name { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; font-size: 0.9375rem; letter-spacing: -0.01em; }
+.repo-name svg { width: 14px; height: 14px; color: var(--text-3); flex: none; }
+.repo-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.repo p { margin: 0; color: var(--text-2); font-size: 0.8125rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.repo .stats { margin-top: auto; padding-top: 0.25rem; }
+@media (hover: hover) and (pointer: fine) { .repo:hover { background: var(--bg-sunken); } }
+
+.repo.skeleton { min-height: 104px; background: var(--bg-sunken); outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card.is-entering { animation: fade 200ms ease both; }
+  .card:hover { transform: none !important; }
+  .card-links a:active, .repo:active { transform: none; }
+}
